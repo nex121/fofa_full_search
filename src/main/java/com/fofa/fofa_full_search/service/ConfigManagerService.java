@@ -2,10 +2,8 @@ package com.fofa.fofa_full_search.service;
 
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,9 +39,9 @@ public class ConfigManagerService {
     }
 
     public void saveConfig() throws IOException {
-        // 将配置信息写入配置文件
+    // 将配置信息写入配置文件
         File configFile = new File("config.yaml");
-        FileWriter writer = new FileWriter(configFile);
+        Writer writer = new OutputStreamWriter(new FileOutputStream(configFile), StandardCharsets.UTF_8);
         Yaml yaml = new Yaml();
         yaml.dump(getConfigMap(), writer);
         writer.close();

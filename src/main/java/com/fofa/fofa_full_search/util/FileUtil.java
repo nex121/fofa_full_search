@@ -12,7 +12,7 @@ public class FileUtil {
         } else {
             return;
         }
-        String fileContent = "fofa_email: \nfofa_key: \nsearch_num: '1000'\n,search_tag: '0'\n,history: []";
+        String fileContent = "fofa_email: \nfofa_key: \nsearch_num: '1000'\nsearch_tag: '0'\nhistory: []";
         //使用FileWriter构建FileOutputStream对象进行文件输出
         try (FileOutputStream fos = new FileOutputStream(file);
              OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8);

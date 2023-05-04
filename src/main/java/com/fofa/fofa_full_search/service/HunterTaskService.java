@@ -38,6 +38,7 @@ public class HunterTaskService extends Task<Void> {
             processResults((JSONArray) hunter_result.get("result_list"));
         } else if (search_num.equals("100")) {
             Map<String, Object> hunter_result = hunterSearch(que, "100", "1");
+            System.out.println(hunter_result.get("result_list"));
             processResults((JSONArray) hunter_result.get("result_list"));
         } else if (search_num.equals("1000")) {
             //先看总数
@@ -50,7 +51,7 @@ public class HunterTaskService extends Task<Void> {
             if (page_num > 10) {
                 page_num = 10;
             }
-            for (int i = 1; i <= page_num; i++) {
+            for (int i = 2; i <= page_num; i++) {
                 Map<String, Object> hunter_result1 = hunterSearch(que, "100", String.valueOf(i));
                 processResults((JSONArray) hunter_result1.get("result_list"));
             }
@@ -91,7 +92,7 @@ public class HunterTaskService extends Task<Void> {
         JSONObject res_json0 = JSONObject.parseObject(req.body());
         JSONObject res_json1 = (JSONObject) res_json0.get("data");
         int res_code = (int) res_json0.get("code");
-
+        System.out.println(url);
         if (res_code == 400) {
             Platform.runLater(() -> {
                 alert.setTitle("提示:");
@@ -114,23 +115,25 @@ public class HunterTaskService extends Task<Void> {
     }
 
     private void processResults(JSONArray results) {
+        System.out.println(results.size());
         for (int i = 0; i < results.size(); i++) {
             JSONObject res_jsons = (JSONObject) results.get(i);
-            System.out.println(res_jsons);
             String ip = res_jsons.getString("ip");
-
             String port = res_jsons.getString("port");
-
             String url = res_jsons.getString("url");
             String title = res_jsons.getString("web_title");
             String region = res_jsons.getString("province");
             String city = res_jsons.getString("city");
             JSONArray server1 = (JSONArray) res_jsons.get("component");
+            String server="";
+            try {
+                JSONObject servers = (JSONObject) server1.get(0);
+                String name = servers.getString("name");
+                String version = servers.getString("version");
+                server = name + " " + version;
+            } catch (Exception e) {
 
-            JSONObject servers = (JSONObject) server1.get(0);
-            String name = servers.getString("name");
-            String version = servers.getString("version");
-            String server = name + " " + version;
+            }
 
             String icp = "";
             try {
@@ -139,9 +142,9 @@ public class HunterTaskService extends Task<Void> {
 
             }
             String finalIcp = icp;
+            String finalServer = server;
             Platform.runLater(() -> {
-                fofa_result.getItems().add(new Fofa(id.getAndIncrement(), ip, port, "http://" + url, title, region, city, server, finalIcp, "hunter"));
-
+                fofa_result.getItems().add(new Fofa(id.getAndIncrement(), ip, port, url, title, region, city, finalServer, finalIcp, "hunter"));
             });
         }
     }

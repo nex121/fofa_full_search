@@ -54,9 +54,11 @@ public class TabController {
         MenuItem menuItem2 = new MenuItem("复制IP");
         MenuItem menuItem3 = new MenuItem("复制省份");
         MenuItem menuItem4 = new MenuItem("复制市区");
-        MenuItem menuItem5 = new MenuItem("导出全部");
+        MenuItem menuItem5 = new MenuItem("复制ICP");
+        MenuItem menuItem6 = new MenuItem("导出全部");
 
-        contextMenu.getItems().addAll(menuItem1, menuItem2, menuItem3, menuItem4, menuItem5);
+
+        contextMenu.getItems().addAll(menuItem1, menuItem2, menuItem3, menuItem4, menuItem5,menuItem6);
 
         fofa_result.setContextMenu(contextMenu);
 
@@ -85,8 +87,14 @@ public class TabController {
             content.putString("city=\"" + value + "\"");
             clipboard.setContent(content);
         });
-
         menuItem5.setOnAction(e -> {
+            Fofa selectedItem = fofa_result.getSelectionModel().getSelectedItem();
+            String value = selectedItem.getIcp();
+            content.putString(value);
+            clipboard.setContent(content);
+        });
+
+        menuItem6.setOnAction(e -> {
             Stage stage = (Stage) fofa_result.getScene().getWindow();
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Save as XLSX");

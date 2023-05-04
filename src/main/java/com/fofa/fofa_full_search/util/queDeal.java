@@ -4,7 +4,6 @@ public class queDeal {
     public static String hunterQueDeal(String que) {
         String[][] replacements = {
                 {"title", "web.title"},
-                {"header", "web.header"},
                 {"body", "web.body"},
                 {"icp", "icp.number"},
                 {"port", "ip.port"},

@@ -12,8 +12,10 @@ import javafx.scene.control.TableView;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,29 +42,23 @@ public class FofaTaskService extends Task<Void> {
     @Override
     protected Void call() throws Exception {
         Map<String, Object> fofa_r1 = fofaSearch(que);
-
-        int size1 = Integer.parseInt(fofa_r1.get("result_size").toString());
-        int page_num = (size1 / 10000) + 1;
-
+        int page_num = Integer.parseInt(fofa_r1.get("result_size").toString());
         if (page_num == 1) {
             processResults((JSONArray) fofa_r1.get("result_list"));
             return null;
         }
-
         String searchText = que;
         if (searchText.contains("city")) {
             searchText += getTimeFilter();
             processResults((JSONArray) fofaSearch(searchText).get("result_list"));
             return null;
         }
-
         if (searchText.contains("region")) {
             String region = getRegionFromQuery(searchText);
             List<String> cities = DealCity.DealCities(region);
             searchAndProcess(searchText, cities);
             return null;
         }
-
         List<String> regions = DealCity.DealProvince(que);
         for (String reg : regions) {
             searchText = que + "&& region=\"" + reg + "\"";
@@ -107,11 +103,11 @@ public class FofaTaskService extends Task<Void> {
         return "";
     }
 
-    private Map<String, Object> fofaSearch(String ques) throws UnsupportedEncodingException, InterruptedException {
+    private Map<String, Object> fofaSearch(String ques) throws InterruptedException {
         Map<String, Object> fofa_r = new HashMap<>();
-        String que_base64 = DatatypeConverter.printBase64Binary(ques.getBytes("utf-8"));
+        String que_base64 = Base64.getUrlEncoder().encodeToString(ques.getBytes(StandardCharsets.UTF_8));
         String url = "https://fofa.info/api/v1/search/all?email=" + email + "&key=" + key + "&qbase64=" + que_base64 + "&size=10000&page=1&fields=ip,port,host,title,region,city,server,icp";
-
+        System.out.println(url);
         HttpRequest req = HttpRequest.get(url);
         JSONObject res_json0 = JSONObject.parseObject(req.body());
         String search_result = res_json0.get("error").toString();

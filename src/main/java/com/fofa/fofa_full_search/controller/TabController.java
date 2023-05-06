@@ -107,6 +107,11 @@ public class TabController {
                 if (file != null) {
                     XlsxExporter.exportTableToXlsx(file, fofa_result);
                 }
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("提示:");
+                alert.setHeaderText("任务提示");
+                alert.setContentText("导出完成");
+                alert.showAndWait();
             } catch (UnsupportedEncodingException ex) {
                 throw new RuntimeException(ex);
             } catch (IOException ex) {

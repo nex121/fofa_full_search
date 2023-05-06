@@ -8,9 +8,9 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableView;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,16 +83,16 @@ public class HunterTaskService extends Task<Void> {
 
     private Map<String, Object> hunterSearch(String ques, String page_size, String page_num) throws UnsupportedEncodingException, InterruptedException {
         Map<String, Object> hunter_r = new HashMap<>();
-        String que_base64 = DatatypeConverter.printBase64Binary(ques.getBytes("utf-8"));
+        String que_base64 = Base64.getUrlEncoder().encodeToString(ques.getBytes(StandardCharsets.UTF_8));
+        System.out.println(que_base64);
         String url = "https://hunter.qianxin.com/openApi/search?api-key=" + key + "&search=" + que_base64 + "&page_size=" + page_size + "&page=" + page_num;
-
+        System.out.println(url);
         HttpRequest req = HttpRequest.get(url);
-
 
         JSONObject res_json0 = JSONObject.parseObject(req.body());
         JSONObject res_json1 = (JSONObject) res_json0.get("data");
         int res_code = (int) res_json0.get("code");
-        System.out.println(url);
+
         if (res_code == 400) {
             Platform.runLater(() -> {
                 alert.setTitle("提示:");
@@ -107,6 +107,16 @@ public class HunterTaskService extends Task<Void> {
 
         JSONArray res_json2 = (JSONArray) res_json1.get("arr");
 
+        if (res_json2.size() == 0) {
+            Platform.runLater(() -> {
+                alert.setTitle("提示:");
+                alert.setHeaderText("错误提示");
+                alert.setContentText("hunter可能搜索语法有误！因为数据为空");
+                alert.showAndWait();
+            });
+            return null;
+        }
+
         hunter_r.put("result_size", (size1 / 100) + 1);
         hunter_r.put("result_list", res_json2);
         Thread.sleep(1500);
@@ -115,7 +125,6 @@ public class HunterTaskService extends Task<Void> {
     }
 
     private void processResults(JSONArray results) {
-        System.out.println(results.size());
         for (int i = 0; i < results.size(); i++) {
             JSONObject res_jsons = (JSONObject) results.get(i);
             String ip = res_jsons.getString("ip");

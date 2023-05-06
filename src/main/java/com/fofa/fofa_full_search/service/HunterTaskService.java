@@ -103,6 +103,16 @@ public class HunterTaskService extends Task<Void> {
             return null;
         }
 
+        if (res_code == 40204) {
+            Platform.runLater(() -> {
+                alert.setTitle("提示:");
+                alert.setHeaderText("错误提示");
+                alert.setContentText("hunter积分用尽！");
+                alert.showAndWait();
+            });
+            return null;
+        }
+
         int size1 = Integer.parseInt(res_json1.getString("total"));
 
         JSONArray res_json2 = (JSONArray) res_json1.get("arr");

@@ -103,9 +103,9 @@ public class FofaTaskService extends Task<Void> {
         return "";
     }
 
-    private Map<String, Object> fofaSearch(String ques) throws InterruptedException {
+    private Map<String, Object> fofaSearch(String ques) throws InterruptedException, UnsupportedEncodingException {
         Map<String, Object> fofa_r = new HashMap<>();
-        String que_base64 = Base64.getUrlEncoder().encodeToString(ques.getBytes(StandardCharsets.UTF_8));
+        String que_base64 = DatatypeConverter.printBase64Binary(ques.getBytes("utf-8"));
         String url = "https://fofa.info/api/v1/search/all?email=" + email + "&key=" + key + "&qbase64=" + que_base64 + "&size=10000&page=1&fields=ip,port,host,title,region,city,server,icp";
         System.out.println(url);
         HttpRequest req = HttpRequest.get(url);

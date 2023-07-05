@@ -15,6 +15,7 @@ import javafx.concurrent.Task;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -66,71 +67,11 @@ public class FofaFullSearchController {
     private static final String FILENAME = "vul.yaml";
 
     public void initialize() throws IOException {
-        //测试
-
-        VulConfigService vcs = new VulConfigService();
-        vcs.load();
-
-        updateButton.setOnAction(event -> {
-            TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                String text = vul_data_area1.getText();
-                String features11 = features1.getText();
-
-                //数据包2
-                String text2 = vul_data_area2.getText();
-                String features22 = features2.getText();
-
-                // 更新绑定关系到配置文件
-                vcs.getBindings().put(selectedItem.getValue(), text);
-                vcs.getFeatures1().put(selectedItem.getValue(), features11);
-                vcs.getSecondTextAreaBindings().put(selectedItem.getValue(), text2);
-                vcs.getFeatures2().put(selectedItem.getValue(), features22);
-
-                vcs.save();
-            }
-        });
-
-
-        treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                String selectedNodeValue = newValue.getValue();
-                String boundText1 = (String) vcs.getBindings().get(selectedNodeValue);
-                String boundFext1 = (String) vcs.getFeatures1().get(selectedNodeValue);
-                String boundText2 = (String) vcs.getSecondTextAreaBindings().get(selectedNodeValue);
-                String boundFext2 = (String) vcs.getFeatures2().get(selectedNodeValue);
-
-                vul_data_area1.setText(boundText1 != null ? boundText1 : "");
-                features1.setText(boundFext1 != null ? boundFext1 : "");
-                vul_data_area2.setText(boundText2 != null ? boundText2 : "");
-                features2.setText(boundFext2 != null ? boundFext2 : "");
-            } else {
-                vul_data_area1.setText("");
-                features1.setText("");
-                vul_data_area2.setText("");
-                features2.setText("");
-            }
-        });
-
-
-        //设置漏洞细节菜单
-        loadTreeStructureFromFile(treeView);
-        treeView.setEditable(true);
-
-        //设置漏洞细节菜单右键
-        treeView.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.SECONDARY) {
-                TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
-                if (selectedItem != null) {
-                    createContextMenu(selectedItem, treeView, vcs).show(treeView, event.getScreenX(), event.getScreenY());
-                }
-            }
-        });
-
         FofasUsed();
         HunterUsed();
         //如果配置文件为空，生成配置文件
         FileUtil.generateFile();
+        FileUtil.generateFile1();
         //历史查询
         Popup popup = new Popup();
         popup.setAutoHide(true);
@@ -174,6 +115,67 @@ public class FofaFullSearchController {
 
         fofa_field.textProperty().addListener((observable, oldValue, newValue) -> {
             historyList.setVisible(false);
+        });
+
+//        初始加载
+        VulConfigService vcs = new VulConfigService();
+        vcs.load();
+
+        //设置升级按钮
+        updateButton.setOnAction(event -> {
+            TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                String text = vul_data_area1.getText();
+                String features11 = features1.getText();
+
+                //数据包2
+                String text2 = vul_data_area2.getText();
+                String features22 = features2.getText();
+
+                // 更新绑定关系到配置文件
+                vcs.getBindings().put(selectedItem.getValue(), text);
+                vcs.getFeatures1().put(selectedItem.getValue(), features11);
+                vcs.getSecondTextAreaBindings().put(selectedItem.getValue(), text2);
+                vcs.getFeatures2().put(selectedItem.getValue(), features22);
+
+                vcs.save();
+            }
+        });
+
+        //设置treeview
+        treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                String selectedNodeValue = newValue.getValue();
+                String boundText1 = (String) vcs.getBindings().get(selectedNodeValue);
+                String boundFext1 = (String) vcs.getFeatures1().get(selectedNodeValue);
+                String boundText2 = (String) vcs.getSecondTextAreaBindings().get(selectedNodeValue);
+                String boundFext2 = (String) vcs.getFeatures2().get(selectedNodeValue);
+
+                vul_data_area1.setText(boundText1 != null ? boundText1 : "");
+                features1.setText(boundFext1 != null ? boundFext1 : "");
+                vul_data_area2.setText(boundText2 != null ? boundText2 : "");
+                features2.setText(boundFext2 != null ? boundFext2 : "");
+            } else {
+                vul_data_area1.setText("");
+                features1.setText("");
+                vul_data_area2.setText("");
+                features2.setText("");
+            }
+        });
+
+
+        //设置漏洞细节菜单
+        loadTreeStructureFromFile(treeView);
+        treeView.setEditable(true);
+
+        //设置漏洞细节菜单右键
+        treeView.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    createContextMenu(selectedItem, treeView, vcs).show(treeView, event.getScreenX(), event.getScreenY());
+                }
+            }
         });
 
     }

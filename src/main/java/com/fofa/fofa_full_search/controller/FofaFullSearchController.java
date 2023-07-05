@@ -8,36 +8,45 @@ import com.fofa.fofa_full_search.entity.HunterUsed;
 import com.fofa.fofa_full_search.service.*;
 import com.fofa.fofa_full_search.util.DomainDealUtil;
 import com.fofa.fofa_full_search.util.FileUtil;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.*;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FofaFullSearchController {
     @FXML
     private TextField fofa_field, thread_num;
     @FXML
-    private TextArea vul_data_area1, vul_data_area2, vul_list, features1, features2;
+    private TextArea vul_data_area1, vul_data_area2, vul_list, target_list, features1, features2;
     @FXML
-    private Button export_vul_list, fofa_search;
+    private Button export_vul_list, fofa_search, updateButton;
     @FXML
     protected TabPane tabPane;
-
     @FXML
     private TableView<FofaUsed> fofa_used;
     @FXML
@@ -52,8 +61,72 @@ public class FofaFullSearchController {
     private TableColumn<HunterUsed, String> syntax_col;
     @FXML
     private TableColumn<HunterUsed, String> search_syn_new_col;
+    @FXML
+    public TreeView<String> treeView;
+    private static final String FILENAME = "vul.yaml";
 
     public void initialize() throws IOException {
+        //测试
+
+        VulConfigService vcs = new VulConfigService();
+        vcs.load();
+
+        updateButton.setOnAction(event -> {
+            TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                String text = vul_data_area1.getText();
+                String features11 = features1.getText();
+
+                //数据包2
+                String text2 = vul_data_area2.getText();
+                String features22 = features2.getText();
+
+                // 更新绑定关系到配置文件
+                vcs.getBindings().put(selectedItem.getValue(), text);
+                vcs.getFeatures1().put(selectedItem.getValue(), features11);
+                vcs.getSecondTextAreaBindings().put(selectedItem.getValue(), text2);
+                vcs.getFeatures2().put(selectedItem.getValue(), features22);
+
+                vcs.save();
+            }
+        });
+
+
+        treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                String selectedNodeValue = newValue.getValue();
+                String boundText1 = (String) vcs.getBindings().get(selectedNodeValue);
+                String boundFext1 = (String) vcs.getFeatures1().get(selectedNodeValue);
+                String boundText2 = (String) vcs.getSecondTextAreaBindings().get(selectedNodeValue);
+                String boundFext2 = (String) vcs.getFeatures2().get(selectedNodeValue);
+
+                vul_data_area1.setText(boundText1 != null ? boundText1 : "");
+                features1.setText(boundFext1 != null ? boundFext1 : "");
+                vul_data_area2.setText(boundText2 != null ? boundText2 : "");
+                features2.setText(boundFext2 != null ? boundFext2 : "");
+            } else {
+                vul_data_area1.setText("");
+                features1.setText("");
+                vul_data_area2.setText("");
+                features2.setText("");
+            }
+        });
+
+
+        //设置漏洞细节菜单
+        loadTreeStructureFromFile(treeView);
+        treeView.setEditable(true);
+
+        //设置漏洞细节菜单右键
+        treeView.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.SECONDARY) {
+                TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    createContextMenu(selectedItem, treeView, vcs).show(treeView, event.getScreenX(), event.getScreenY());
+                }
+            }
+        });
+
         FofasUsed();
         HunterUsed();
         //如果配置文件为空，生成配置文件
@@ -102,7 +175,107 @@ public class FofaFullSearchController {
         fofa_field.textProperty().addListener((observable, oldValue, newValue) -> {
             historyList.setVisible(false);
         });
+
     }
+
+    private ContextMenu createContextMenu(TreeItem<String> selectedItem, TreeView<String> treeView, VulConfigService vcs) {
+        ContextMenu contextMenu = new ContextMenu();
+
+        // Add node menu item
+        MenuItem addMenuItem = new MenuItem("Add");
+        addMenuItem.setOnAction(event -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Node");
+            dialog.setHeaderText("请输入节点值:");
+
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(value -> {
+                TreeItem<String> newItem = new TreeItem<>(value);
+                selectedItem.getChildren().add(newItem);
+                selectedItem.setExpanded(true);
+                treeView.edit(newItem);
+                saveTreeStructureToFile(treeView);
+            });
+        });
+
+        // Delete node menu item
+        MenuItem deleteMenuItem = new MenuItem("Delete");
+
+        deleteMenuItem.setOnAction(event -> {
+            TreeItem<String> parent = selectedItem.getParent();
+            if (parent != null) {
+
+                parent.getChildren().remove(selectedItem);
+
+                vcs.removeBinding(selectedItem.getValue());
+            }
+            saveTreeStructureToFile(treeView);
+        });
+
+        contextMenu.getItems().addAll(addMenuItem, deleteMenuItem);
+        return contextMenu;
+    }
+
+    private void saveTreeStructureToFile(TreeView<String> treeView) {
+        TreeItem<String> root = treeView.getRoot();
+        Map<String, Object> data = buildMap(root);
+
+        try {
+            Representer representer = new Representer();
+            representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+
+            Yaml yaml = new Yaml(representer);
+            FileWriter writer = new FileWriter(FILENAME);
+            yaml.dump(data, writer);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadTreeStructureFromFile(TreeView<String> treeView) {
+        Map<String, Object> data = loadMapFromYaml(FILENAME);
+        if (data != null) {
+            TreeItem<String> rootItem = buildTreeView(data);
+            treeView.setRoot(rootItem);
+        }
+    }
+
+    private Map<String, Object> loadMapFromYaml(String filename) {
+        try {
+            Yaml yaml = new Yaml(new Constructor());
+            FileInputStream fileInputStream = new FileInputStream(filename);
+            return yaml.load(fileInputStream);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Map<String, Object> buildMap(TreeItem<String> treeItem) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        List<Map<String, Object>> children = new ArrayList<>();
+        map.put("name", treeItem.getValue());
+        map.put("children", children);
+
+        for (TreeItem<String> child : treeItem.getChildren()) {
+            children.add(buildMap(child));
+        }
+        return map;
+    }
+
+    private TreeItem<String> buildTreeView(Map<String, Object> data) {
+        String name = (String) data.get("name");
+        List<Map<String, Object>> children = (List<Map<String, Object>>) data.get("children");
+
+        TreeItem<String> treeItem = new TreeItem<>(name);
+        for (Map<String, Object> childData : children) {
+            TreeItem<String> childItem = buildTreeView(childData);
+            treeItem.getChildren().add(childItem);
+        }
+        return treeItem;
+    }
+
 
     private void FofasUsed() {
         example_col.setCellValueFactory(cellData -> cellData.getValue().exampleProperty());
@@ -288,21 +461,150 @@ public class FofaFullSearchController {
         fa.start(new Stage());
     }
 
+//    @FXML
+//    private void VulVerify(ActionEvent actionEvent) throws UnknownHostException {
+//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//
+//        List<String> values = new ArrayList<>();
+//
+//        //先看target_list的area中是否存在值
+//        if (!Objects.equals(target_list.getText(), "")) {
+//            values.addAll(Arrays.asList(target_list.getText().split("\n")));
+//        } else {
+//            //不存在值再看fofa_result
+//            try {
+//                //获取当前节点tab
+//                Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
+//                //获取tab中的anchorpane布局
+//                AnchorPane ap = (AnchorPane) currentTab.getContent();
+//                //布局中的tableview
+//                TableView<Fofa> tableView = (TableView<Fofa>) ap.getChildren().get(0);
+//                // 获取某一列的值
+//                TableColumn<Fofa, String> column = (TableColumn<Fofa, String>) tableView.getColumns().get(3);
+//                //获取fofa_line的行数
+//                int fofa_line = tableView.getItems().size();
+//
+//                for (int i = 0; i < fofa_line; i++) {
+//                    values.add(column.getCellData(i));
+//                }
+//            } catch (Exception e) {
+//                alert.setTitle("提示:");
+//                alert.setHeaderText("任务提示");
+//                alert.setContentText("目标列表为空");
+//                alert.showAndWait();
+//                return;
+//            }
+//        }
+//
+//        String feat1 = features1.getText();
+//        String feat2 = features2.getText();
+//        String vul_content1 = vul_data_area1.getText();
+//        String vul_content2 = vul_data_area2.getText();
+//
+//        ArrayList<String> domain_list = new ArrayList<>();
+//        ArrayList<String> ip_list = new ArrayList<>();
+//
+//        if (values.isEmpty()) {
+//            alert.setTitle("提示:");
+//            alert.setHeaderText("任务提示");
+//            alert.setContentText("目标列表为空");
+//            alert.showAndWait();
+//            return;
+//        }
+//
+//        if (feat1.trim().equals("")) {
+//            alert.setTitle("提示:");
+//            alert.setHeaderText("任务提示");
+//            alert.setContentText("特征1为空");
+//            alert.showAndWait();
+//            return;
+//        }
+//
+//        if (!vul_content2.trim().equals("") && feat2.trim().equals("")) {
+//            alert.setTitle("提示:");
+//            alert.setHeaderText("任务提示");
+//            alert.setContentText("特征2为空");
+//            alert.showAndWait();
+//            return;
+//        }
+//
+//        int threadNum = 50;
+//        try {
+//            threadNum = Integer.parseInt(thread_num.getText());
+//        } catch (Exception e) {
+//        }
+//
+//        ExecutorService executor = Executors.newFixedThreadPool(threadNum);
+//        AtomicInteger taskCount = new AtomicInteger(values.size());
+//
+//        for (String host : values) {
+//            if (host.trim().equals("")) {
+//                continue;
+//            }
+//
+//            String root_host = "";
+//            String root_ip = "";
+//            if (!DomainDealUtil.isIP(host)) {
+//                root_host = DomainDealUtil.get_root_domain_apache(host);
+//            }
+//            if (DomainDealUtil.isIP(host)) {
+//                root_ip = DomainDealUtil.get_http_root_ip(host);
+//            }
+//            if (!domain_list.contains(root_host) || !ip_list.contains(root_ip)) {
+//                domain_list.add(root_host);
+//                ip_list.add(root_ip);
+//                VerifyTaskService task = new VerifyTaskService(host, feat1, feat2, vul_content1, vul_content2, vul_list);
+//                task.setOnSucceeded(event -> {
+//                    int count = taskCount.decrementAndGet();
+//                    System.out.println(count);
+//                    if (count == 0) {
+//                        Platform.runLater(() -> {
+//                            alert.setTitle("提示:");
+//                            alert.setHeaderText("任务提示");
+//                            alert.setContentText("漏洞验证完成");
+//                            alert.showAndWait();
+//                        });
+//                    }
+//                });
+//                executor.execute(task);
+//            }
+//        }
+//        executor.shutdown();
+//    }
+
     @FXML
-    private void VulVerify(javafx.event.ActionEvent actionEvent) throws UnknownHostException {
-        //获取当前节点tab
-        Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
-        //获取tab中的anchorpane布局
-        AnchorPane ap = (AnchorPane) currentTab.getContent();
-        //布局中的tableview
-        TableView<Fofa> tableView = (TableView<Fofa>) ap.getChildren().get(0);
-        // 获取某一列的值
-        TableColumn<Fofa, String> column = (TableColumn<Fofa, String>) tableView.getColumns().get(3);
-        System.out.println(column);
+    private void VulVerify(ActionEvent actionEvent) throws UnknownHostException {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
         List<String> values = new ArrayList<>();
-        int fofa_line = tableView.getItems().size();
-        for (int i = 0; i < fofa_line; i++) {
-            values.add(column.getCellData(i));
+
+        //先看target_list的area中是否存在值
+        if (!Objects.equals(target_list.getText(), "")) {
+            values.addAll(Arrays.asList(target_list.getText().split("\n")));
+        } else {
+            //不存在值再看fofa_result
+            try {
+                //获取当前节点tab
+                Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
+                //获取tab中的anchorpane布局
+                AnchorPane ap = (AnchorPane) currentTab.getContent();
+                //布局中的tableview
+                TableView<Fofa> tableView = (TableView<Fofa>) ap.getChildren().get(0);
+                // 获取某一列的值
+                TableColumn<Fofa, String> column = (TableColumn<Fofa, String>) tableView.getColumns().get(3);
+                //获取fofa_line的行数
+                int fofa_line = tableView.getItems().size();
+
+                for (int i = 0; i < fofa_line; i++) {
+                    values.add(column.getCellData(i));
+                }
+            } catch (Exception e) {
+                alert.setTitle("提示:");
+                alert.setHeaderText("任务提示");
+                alert.setContentText("目标列表为空");
+                alert.showAndWait();
+                return;
+            }
         }
 
         String feat1 = features1.getText();
@@ -312,12 +614,11 @@ public class FofaFullSearchController {
 
         ArrayList<String> domain_list = new ArrayList<>();
         ArrayList<String> ip_list = new ArrayList<>();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
-        if (fofa_line == 0) {
+        if (values.isEmpty()) {
             alert.setTitle("提示:");
             alert.setHeaderText("任务提示");
-            alert.setContentText("fofa列表为空");
+            alert.setContentText("目标列表为空");
             alert.showAndWait();
             return;
         }
@@ -337,20 +638,23 @@ public class FofaFullSearchController {
             alert.showAndWait();
             return;
         }
-        int threatNum = 50;
+
+        int threadNum = 50;
         try {
-            threatNum = Integer.parseInt(thread_num.getText());
+            threadNum = Integer.parseInt(thread_num.getText());
         } catch (Exception e) {
         }
-        ExecutorService executor = Executors.newFixedThreadPool(threatNum);
 
-        List<Task<Void>> tasks = new ArrayList<>();
-        String root_host = "";
-        String root_ip = "";
+        ExecutorService executor = Executors.newFixedThreadPool(threadNum);
+        CountDownLatch latch = new CountDownLatch(values.size());
+
         for (String host : values) {
             if (host.trim().equals("")) {
                 continue;
             }
+
+            String root_host = "";
+            String root_ip = "";
             if (!DomainDealUtil.isIP(host)) {
                 root_host = DomainDealUtil.get_root_domain_apache(host);
             }
@@ -360,12 +664,21 @@ public class FofaFullSearchController {
             if (!domain_list.contains(root_host) || !ip_list.contains(root_ip)) {
                 domain_list.add(root_host);
                 ip_list.add(root_ip);
-                tasks.add(new VerifyTaskService(host, feat1, feat2, vul_content1, vul_content2, vul_list));
-            }
-        }
+                VerifyTaskService task = new VerifyTaskService(host, feat1, feat2, vul_content1, vul_content2, vul_list);
+                task.setOnSucceeded(event -> {
+                    latch.countDown();
 
-        for (Task<Void> task : tasks) {
-            executor.execute(task);
+                    if (latch.getCount() == 0) {
+                        Platform.runLater(() -> {
+                            alert.setTitle("提示:");
+                            alert.setHeaderText("任务提示");
+                            alert.setContentText("漏洞验证完成");
+                            alert.showAndWait();
+                        });
+                    }
+                });
+                executor.execute(task);
+            }
         }
         executor.shutdown();
     }

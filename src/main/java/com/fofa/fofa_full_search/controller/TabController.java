@@ -50,6 +50,7 @@ public class TabController {
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
 
+
         MenuItem menuItem1 = new MenuItem("复制URL");
         MenuItem menuItem2 = new MenuItem("复制IP");
         MenuItem menuItem3 = new MenuItem("复制省份");
@@ -61,6 +62,7 @@ public class TabController {
         contextMenu.getItems().addAll(menuItem1, menuItem2, menuItem3, menuItem4, menuItem5,menuItem6);
 
         fofa_result.setContextMenu(contextMenu);
+
 
         menuItem1.setOnAction(e -> {
             Fofa selectedItem = fofa_result.getSelectionModel().getSelectedItem();

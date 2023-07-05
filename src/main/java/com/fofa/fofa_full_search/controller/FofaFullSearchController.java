@@ -13,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -227,13 +228,15 @@ public class FofaFullSearchController {
             representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
             Yaml yaml = new Yaml(representer);
-            FileWriter writer = new FileWriter(FILENAME);
+            FileOutputStream fileOutputStream = new FileOutputStream(FILENAME);
+            OutputStreamWriter writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
             yaml.dump(data, writer);
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     private void loadTreeStructureFromFile(TreeView<String> treeView) {
         Map<String, Object> data = loadMapFromYaml(FILENAME);
@@ -247,12 +250,14 @@ public class FofaFullSearchController {
         try {
             Yaml yaml = new Yaml(new Constructor());
             FileInputStream fileInputStream = new FileInputStream(filename);
-            return yaml.load(fileInputStream);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
+            return yaml.load(inputStreamReader);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return null;
     }
+
 
     private Map<String, Object> buildMap(TreeItem<String> treeItem) {
         Map<String, Object> map = new LinkedHashMap<>();

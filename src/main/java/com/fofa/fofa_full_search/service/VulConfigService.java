@@ -3,6 +3,7 @@ package com.fofa.fofa_full_search.service;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,8 @@ public class VulConfigService {
     }
 
     public void save() {
-        try (FileWriter writer = new FileWriter(FILENAME)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(FILENAME);
+             OutputStreamWriter writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
             Yaml yaml = new Yaml();
             Map<String, Object> config = new HashMap<>();
 
@@ -65,6 +67,7 @@ public class VulConfigService {
         }
     }
 
+
     public void removeBinding(String node) {
         bindings.remove(node);
         features1.remove(node);
@@ -74,9 +77,9 @@ public class VulConfigService {
     }
 
     public void load() {
-        try (FileInputStream fileInputStream = new FileInputStream(FILENAME)) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(FILENAME), StandardCharsets.UTF_8))) {
             Yaml yaml = new Yaml();
-            Map<String, Object> config = yaml.load(fileInputStream);
+            Map<String, Object> config = yaml.load(reader);
             if (config != null) {
                 for (Map.Entry<String, Object> entry : config.entrySet()) {
                     String node = entry.getKey();

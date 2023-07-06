@@ -1,7 +1,5 @@
 # fofa_full_search
 
-练手之作
-
 融合了fofa及hunter部分语法
 
 有历史记录功能
@@ -12,25 +10,41 @@ fofa全量搜索，资产过多自动遍历省市
 
 详细了解可以看源码
 
-配置文件
+## 工具部分截图
+
+### 新增漏洞管理
+
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/30bcb0f8-8009-4449-810d-bf68bdcb217e)
+
+右键新增节点
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/39786fc8-4624-4b1d-a98a-0fefa1cf32c7)
+
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/0564bff9-edba-4b56-b11d-a69643a57e3f)
+
+直接输入漏洞数据包（burp的数据包即可，host可不去除），及返回特征。点击保存，使他们与节点绑定。
+
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/7a14e8fc-634f-4931-b93a-efd13c5f6087)
+
+### 配置文件
 
 ![image](https://user-images.githubusercontent.com/29255605/236624425-2c7c0264-1382-4264-8668-320a516adc20.png)
 
-历史记录
+### 历史记录
 
 ![image](https://user-images.githubusercontent.com/29255605/236624572-dec97133-1801-41ee-ad3d-764a2a96c37b.png)
 
-查询结果
+### 查询结果
 
 ![image](https://user-images.githubusercontent.com/29255605/236624687-52dd2db9-5beb-4fe7-a41e-2eaa897bb586.png)
 
-漏洞细节
+### 漏洞细节
 
 ![image](https://user-images.githubusercontent.com/29255605/236624635-0426837a-a96e-4658-a302-fd34dbf823cb.png)
 
-漏洞列表
+### 漏洞列表
 
-![image](https://user-images.githubusercontent.com/29255605/236624650-6df897bf-e2ac-4dba-a221-979af51ccf56.png)
+漏洞列表略有改变，当目标地址的textarea存在url列表时，点击验证按钮优先验证目标地址中的url列表，如果没有会验证fofa查询结果的url。
 
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/5f5baec1-4930-4bb1-998d-e45c9df8d2ac)
 
 # 新写项目肯定有bug，欢迎提交。

@@ -37,10 +37,6 @@ fofa全量搜索，资产过多自动遍历省市
 
 ![image](https://user-images.githubusercontent.com/29255605/236624687-52dd2db9-5beb-4fe7-a41e-2eaa897bb586.png)
 
-### 漏洞细节
-
-![image](https://user-images.githubusercontent.com/29255605/236624635-0426837a-a96e-4658-a302-fd34dbf823cb.png)
-
 ### 漏洞列表
 
 漏洞列表略有改变，当目标地址的textarea存在url列表时，点击验证按钮优先验证目标地址中的url列表，如果没有会验证fofa查询结果的url。

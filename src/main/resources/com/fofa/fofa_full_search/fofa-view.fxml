@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -184,23 +185,37 @@
                                                         <Label text="漏洞数据包2" GridPane.rowIndex="2" />
                                                         <Label text="特征1" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
                                                         <Label text="特征2" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
-                                                        <TextArea fx:id="features1" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                            <GridPane.margin>
-                                                                <Insets />
-                                                            </GridPane.margin>
-                                                            <padding>
-                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                                            </padding>
-                                                        </TextArea>
-                                                        <TextArea fx:id="features2" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                                            <GridPane.margin>
-                                                                <Insets />
-                                                            </GridPane.margin>
-                                                            <padding>
-                                                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                                            </padding>
-                                                        </TextArea>
                                           <Button fx:id="updateButton" mnemonicParsing="false" text="保存" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER" />
+                                          <GridPane maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <rowConstraints>
+                                              <RowConstraints maxHeight="25.0" minHeight="25.0" vgrow="SOMETIMES" />
+                                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                            </rowConstraints>
+                                             <children>
+                                                <ComboBox fx:id="features1com" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                                                              <TextArea fx:id="features1" prefHeight="140.0" prefWidth="400.0" GridPane.rowIndex="1">
+                                                                  <GridPane.margin>
+                                                                      <Insets />
+                                                                  </GridPane.margin>
+                                                                  <padding>
+                                                                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                  </padding>
+                                                              </TextArea>
+                                             </children>
+                                          </GridPane>
+                                          <GridPane GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                             <children>
+                                                <ComboBox fx:id="features2com" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+                                                              <TextArea fx:id="features2" GridPane.rowIndex="1">
+                                                                  <GridPane.margin>
+                                                                      <Insets />
+                                                                  </GridPane.margin>
+                                                                  <padding>
+                                                                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                  </padding>
+                                                              </TextArea>
+                                             </children>
+                                          </GridPane>
                                                     </children>
                                                 </GridPane>
                                             </children>

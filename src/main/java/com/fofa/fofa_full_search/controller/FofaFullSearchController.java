@@ -11,11 +11,9 @@ import com.fofa.fofa_full_search.util.FileUtil;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,6 +26,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
@@ -38,7 +37,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+
 
 public class FofaFullSearchController {
     @FXML
@@ -47,6 +46,8 @@ public class FofaFullSearchController {
     private TextArea vul_data_area1, vul_data_area2, vul_list, target_list, features1, features2;
     @FXML
     private Button export_vul_list, fofa_search, updateButton;
+    @FXML
+    private ComboBox<String> features1com, features2com;
     @FXML
     protected TabPane tabPane;
     @FXML
@@ -68,6 +69,14 @@ public class FofaFullSearchController {
     private static final String FILENAME = "vul.yaml";
 
     public void initialize() throws IOException {
+        //初始化特征下拉框
+
+        features1com.setValue("response_body1");
+        features1com.getItems().addAll("response_header1", "response_body1", "ceye_token1", "dig_token1");
+
+        features2com.setValue("response_body2");
+        features2com.getItems().addAll("response_header2", "response_body2", "ceye_token2", "dig_token2");
+
         FofasUsed();
         HunterUsed();
         //如果配置文件为空，生成配置文件
@@ -106,7 +115,6 @@ public class FofaFullSearchController {
         });
 
         historyList.setOnMouseClicked(event -> {
-
             String selectedItem = historyList.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 fofa_field.setText(selectedItem);
@@ -118,26 +126,118 @@ public class FofaFullSearchController {
             historyList.setVisible(false);
         });
 
-//        初始加载
+        //初始加载
         VulConfigService vcs = new VulConfigService();
         vcs.load();
+
+        //特征下拉框切换不同的值的实现
+        features1com.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            vcs.load();
+            TreeItem<String> node = treeView.getSelectionModel().getSelectedItem();
+            // 根据选择的项更新TextArea的内容
+            if (newValue != null && newValue.equals("response_header1")) {
+                try {
+                    features1.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features1.setText("");
+                }
+            }
+            if (newValue != null && newValue.equals("response_body1")) {
+                try {
+                    features1.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features1.setText("");
+                }
+            }
+            if (newValue != null && newValue.equals("ceye_token1")) {
+                try {
+                    features1.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features1.setText("");
+                }
+            }
+            if (newValue != null && newValue.equals("dig_token1")) {
+                try {
+                    features1.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features1.setText("");
+                }
+            }
+        });
+
+        features2com.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            vcs.load();
+            TreeItem<String> node = treeView.getSelectionModel().getSelectedItem();
+            // 根据选择的项更新TextArea的内容
+            if (newValue != null && newValue.equals("response_header2")) {
+                try {
+                    features2.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features2.setText("");
+                }
+            }
+            if (newValue != null && newValue.equals("response_body2")) {
+                try {
+                    features2.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features2.setText("");
+                }
+            }
+            if (newValue != null && newValue.equals("ceye_token2")) {
+                try {
+                    features2.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features2.setText("");
+                }
+            }
+            if (newValue != null && newValue.equals("dig_token2")) {
+                try {
+                    features2.setText(vcs.getNodeValue(node.getValue(), newValue).toString());
+                } catch (Exception e) {
+                    features2.setText("");
+                }
+            }
+        });
+
 
         //设置升级按钮
         updateButton.setOnAction(event -> {
             TreeItem<String> selectedItem = treeView.getSelectionModel().getSelectedItem();
+
             if (selectedItem != null) {
                 String text = vul_data_area1.getText();
                 String features11 = features1.getText();
-
                 //数据包2
                 String text2 = vul_data_area2.getText();
                 String features22 = features2.getText();
 
                 // 更新绑定关系到配置文件
                 vcs.getBindings().put(selectedItem.getValue(), text);
-                vcs.getFeatures1().put(selectedItem.getValue(), features11);
+                if (features1com.getSelectionModel().getSelectedItem().equals("response_header1")) {
+                    vcs.getResponseHeader1().put(selectedItem.getValue(), features11);
+                }
+                if (features1com.getSelectionModel().getSelectedItem().equals("response_body1")) {
+                    vcs.getResponseBody1().put(selectedItem.getValue(), features11);
+                }
+                if (features1com.getSelectionModel().getSelectedItem().equals("ceye_token1")) {
+                    vcs.getCeyeToken1().put(selectedItem.getValue(), features11);
+                }
+                if (features1com.getSelectionModel().getSelectedItem().equals("dig_token1")) {
+                    vcs.getdigToken1().put(selectedItem.getValue(), features11);
+                }
                 vcs.getSecondTextAreaBindings().put(selectedItem.getValue(), text2);
-                vcs.getFeatures2().put(selectedItem.getValue(), features22);
+                if (features2com.getSelectionModel().getSelectedItem().equals("response_header2")) {
+                    vcs.getResponseHeader2().put(selectedItem.getValue(), features22);
+                }
+                if (features2com.getSelectionModel().getSelectedItem().equals("response_body2")) {
+                    vcs.getResponseBody2().put(selectedItem.getValue(), features22);
+                }
+                if (features2com.getSelectionModel().getSelectedItem().equals("ceye_token2")) {
+                    vcs.getCeyeToken2().put(selectedItem.getValue(), features22);
+                }
+                if (features2com.getSelectionModel().getSelectedItem().equals("dig_token2")) {
+                    vcs.getdigToken2().put(selectedItem.getValue(), features22);
+                }
 
                 vcs.save();
             }
@@ -146,16 +246,27 @@ public class FofaFullSearchController {
         //设置treeview
         treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
+                String feas1 = features1com.getSelectionModel().getSelectedItem();
+                String feas2 = features2com.getSelectionModel().getSelectedItem();
                 String selectedNodeValue = newValue.getValue();
+
+                try {
+                    features1.setText(vcs.getNodeValue(selectedNodeValue, feas1).toString());
+                } catch (Exception e) {
+                    features1.setText("");
+                }
+
+                try {
+                    features2.setText(vcs.getNodeValue(selectedNodeValue, feas2).toString());
+                } catch (Exception e) {
+                    features2.setText("");
+                }
                 String boundText1 = (String) vcs.getBindings().get(selectedNodeValue);
-                String boundFext1 = (String) vcs.getFeatures1().get(selectedNodeValue);
+
                 String boundText2 = (String) vcs.getSecondTextAreaBindings().get(selectedNodeValue);
-                String boundFext2 = (String) vcs.getFeatures2().get(selectedNodeValue);
 
                 vul_data_area1.setText(boundText1 != null ? boundText1 : "");
-                features1.setText(boundFext1 != null ? boundFext1 : "");
                 vul_data_area2.setText(boundText2 != null ? boundText2 : "");
-                features2.setText(boundFext2 != null ? boundFext2 : "");
             } else {
                 vul_data_area1.setText("");
                 features1.setText("");
@@ -468,122 +579,13 @@ public class FofaFullSearchController {
         fa.start(new Stage());
     }
 
-//    @FXML
-//    private void VulVerify(ActionEvent actionEvent) throws UnknownHostException {
-//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//
-//        List<String> values = new ArrayList<>();
-//
-//        //先看target_list的area中是否存在值
-//        if (!Objects.equals(target_list.getText(), "")) {
-//            values.addAll(Arrays.asList(target_list.getText().split("\n")));
-//        } else {
-//            //不存在值再看fofa_result
-//            try {
-//                //获取当前节点tab
-//                Tab currentTab = tabPane.getSelectionModel().getSelectedItem();
-//                //获取tab中的anchorpane布局
-//                AnchorPane ap = (AnchorPane) currentTab.getContent();
-//                //布局中的tableview
-//                TableView<Fofa> tableView = (TableView<Fofa>) ap.getChildren().get(0);
-//                // 获取某一列的值
-//                TableColumn<Fofa, String> column = (TableColumn<Fofa, String>) tableView.getColumns().get(3);
-//                //获取fofa_line的行数
-//                int fofa_line = tableView.getItems().size();
-//
-//                for (int i = 0; i < fofa_line; i++) {
-//                    values.add(column.getCellData(i));
-//                }
-//            } catch (Exception e) {
-//                alert.setTitle("提示:");
-//                alert.setHeaderText("任务提示");
-//                alert.setContentText("目标列表为空");
-//                alert.showAndWait();
-//                return;
-//            }
-//        }
-//
-//        String feat1 = features1.getText();
-//        String feat2 = features2.getText();
-//        String vul_content1 = vul_data_area1.getText();
-//        String vul_content2 = vul_data_area2.getText();
-//
-//        ArrayList<String> domain_list = new ArrayList<>();
-//        ArrayList<String> ip_list = new ArrayList<>();
-//
-//        if (values.isEmpty()) {
-//            alert.setTitle("提示:");
-//            alert.setHeaderText("任务提示");
-//            alert.setContentText("目标列表为空");
-//            alert.showAndWait();
-//            return;
-//        }
-//
-//        if (feat1.trim().equals("")) {
-//            alert.setTitle("提示:");
-//            alert.setHeaderText("任务提示");
-//            alert.setContentText("特征1为空");
-//            alert.showAndWait();
-//            return;
-//        }
-//
-//        if (!vul_content2.trim().equals("") && feat2.trim().equals("")) {
-//            alert.setTitle("提示:");
-//            alert.setHeaderText("任务提示");
-//            alert.setContentText("特征2为空");
-//            alert.showAndWait();
-//            return;
-//        }
-//
-//        int threadNum = 50;
-//        try {
-//            threadNum = Integer.parseInt(thread_num.getText());
-//        } catch (Exception e) {
-//        }
-//
-//        ExecutorService executor = Executors.newFixedThreadPool(threadNum);
-//        AtomicInteger taskCount = new AtomicInteger(values.size());
-//
-//        for (String host : values) {
-//            if (host.trim().equals("")) {
-//                continue;
-//            }
-//
-//            String root_host = "";
-//            String root_ip = "";
-//            if (!DomainDealUtil.isIP(host)) {
-//                root_host = DomainDealUtil.get_root_domain_apache(host);
-//            }
-//            if (DomainDealUtil.isIP(host)) {
-//                root_ip = DomainDealUtil.get_http_root_ip(host);
-//            }
-//            if (!domain_list.contains(root_host) || !ip_list.contains(root_ip)) {
-//                domain_list.add(root_host);
-//                ip_list.add(root_ip);
-//                VerifyTaskService task = new VerifyTaskService(host, feat1, feat2, vul_content1, vul_content2, vul_list);
-//                task.setOnSucceeded(event -> {
-//                    int count = taskCount.decrementAndGet();
-//                    System.out.println(count);
-//                    if (count == 0) {
-//                        Platform.runLater(() -> {
-//                            alert.setTitle("提示:");
-//                            alert.setHeaderText("任务提示");
-//                            alert.setContentText("漏洞验证完成");
-//                            alert.showAndWait();
-//                        });
-//                    }
-//                });
-//                executor.execute(task);
-//            }
-//        }
-//        executor.shutdown();
-//    }
 
     @FXML
     private void VulVerify(ActionEvent actionEvent) throws UnknownHostException {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
         List<String> values = new ArrayList<>();
+
 
         //先看target_list的area中是否存在值
         if (!Objects.equals(target_list.getText(), "")) {
@@ -614,6 +616,8 @@ public class FofaFullSearchController {
             }
         }
 
+        String flag1 = features1com.getValue();
+        String flag2 = features2com.getValue();
         String feat1 = features1.getText();
         String feat2 = features2.getText();
         String vul_content1 = vul_data_area1.getText();
@@ -651,7 +655,16 @@ public class FofaFullSearchController {
             threadNum = Integer.parseInt(thread_num.getText());
         } catch (Exception e) {
         }
+        //先看一下线程
+//        if (values.size() < threadNum) {
+//            alert.setTitle("提示:");
+//            alert.setHeaderText("任务提示");
+//            alert.setContentText("线程过多，请修改");
+//            alert.showAndWait();
+//            return;
+//        }
 
+        //这种弹窗方法还是存在问题，暂时不解决
         ExecutorService executor = Executors.newFixedThreadPool(threadNum);
         CountDownLatch latch = new CountDownLatch(values.size());
 
@@ -671,7 +684,7 @@ public class FofaFullSearchController {
             if (!domain_list.contains(root_host) || !ip_list.contains(root_ip)) {
                 domain_list.add(root_host);
                 ip_list.add(root_ip);
-                VerifyTaskService task = new VerifyTaskService(host, feat1, feat2, vul_content1, vul_content2, vul_list);
+                VerifyTaskService task = new VerifyTaskService(host, flag1, flag2, feat1, feat2, vul_content1, vul_content2, vul_list);
                 task.setOnSucceeded(event -> {
                     latch.countDown();
 
@@ -687,7 +700,7 @@ public class FofaFullSearchController {
                 executor.execute(task);
             }
         }
-        executor.shutdown();
+//        executor.shutdown();
     }
 
     @FXML

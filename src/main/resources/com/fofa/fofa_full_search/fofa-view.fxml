@@ -21,11 +21,11 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1124.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fofa.fofa_full_search.controller.FofaFullSearchController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="745.0" prefWidth="1399.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.fofa.fofa_full_search.controller.FofaFullSearchController">
     <children>
         <BorderPane layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0">
             <top>
-                <MenuBar BorderPane.alignment="CENTER">
+                <MenuBar prefWidth="1155.0" BorderPane.alignment="CENTER">
                     <menus>
                         <Menu mnemonicParsing="false" text="配置">
                             <items>
@@ -155,14 +155,14 @@
                                                 <GridPane layoutX="284.0" layoutY="53.0" minWidth="500.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                                                     <columnConstraints>
                                                         <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" />
-                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" minWidth="300.0" prefWidth="326.666748046875" />
+                                                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="400.0" prefWidth="326.666748046875" />
                                                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="50.0" minWidth="50.0" prefWidth="50.0" />
                                                     </columnConstraints>
                                                     <rowConstraints>
                                                         <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         <RowConstraints vgrow="SOMETIMES" />
                                                         <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                        <RowConstraints vgrow="SOMETIMES" />
+                                                        <RowConstraints maxHeight="1.7976931348623157E308" vgrow="SOMETIMES" />
                                                     </rowConstraints>
                                                     <children>
                                                         <Label text="漏洞数据包1" />
@@ -193,7 +193,7 @@
                                             </rowConstraints>
                                              <children>
                                                 <ComboBox fx:id="features1com" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                                                              <TextArea fx:id="features1" prefHeight="140.0" prefWidth="400.0" GridPane.rowIndex="1">
+                                                              <TextArea fx:id="features1" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.rowIndex="1">
                                                                   <GridPane.margin>
                                                                       <Insets />
                                                                   </GridPane.margin>
@@ -202,11 +202,14 @@
                                                                   </padding>
                                                               </TextArea>
                                              </children>
+                                             <columnConstraints>
+                                                <ColumnConstraints />
+                                             </columnConstraints>
                                           </GridPane>
-                                          <GridPane GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                          <GridPane maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                              <children>
                                                 <ComboBox fx:id="features2com" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                                                              <TextArea fx:id="features2" GridPane.rowIndex="1">
+                                                              <TextArea fx:id="features2" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.rowIndex="1">
                                                                   <GridPane.margin>
                                                                       <Insets />
                                                                   </GridPane.margin>
@@ -215,6 +218,13 @@
                                                                   </padding>
                                                               </TextArea>
                                              </children>
+                                             <columnConstraints>
+                                                <ColumnConstraints />
+                                             </columnConstraints>
+                                             <rowConstraints>
+                                                <RowConstraints />
+                                                <RowConstraints maxHeight="1.7976931348623157E308" valignment="BASELINE" vgrow="ALWAYS" />
+                                             </rowConstraints>
                                           </GridPane>
                                                     </children>
                                                 </GridPane>

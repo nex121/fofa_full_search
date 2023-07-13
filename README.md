@@ -14,16 +14,18 @@ fofa全量搜索，资产过多自动遍历省市
 
 ### 新增漏洞管理
 
-![image](https://github.com/nex121/fofa_full_search/assets/29255605/30bcb0f8-8009-4449-810d-bf68bdcb217e)
+漏洞管理升级，可以选择匹配相应头，相应正文，或者选择dig或ceye来验证无回显，反序列化等复杂漏洞。对于验证该类复杂漏洞使用ceye及dig时，建议将线程跳到5以下。
+
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/5ef55127-3918-4adc-935b-1e160b0f4e6a)
 
 右键新增节点
-![image](https://github.com/nex121/fofa_full_search/assets/29255605/39786fc8-4624-4b1d-a98a-0fefa1cf32c7)
 
-![image](https://github.com/nex121/fofa_full_search/assets/29255605/0564bff9-edba-4b56-b11d-a69643a57e3f)
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/ef7c52e5-2d45-41cd-9d6b-d6188a6090fe)
 
-直接输入漏洞数据包（burp的数据包即可，host可不去除），及返回特征。点击保存，使他们与节点绑定。
+直接输入漏洞数据包（burp的数据包即可，host可不去除），及返回特征。点击保存，使他们与节点及相应特征绑定。
 
-![image](https://github.com/nex121/fofa_full_search/assets/29255605/7a14e8fc-634f-4931-b93a-efd13c5f6087)
+![image](https://github.com/nex121/fofa_full_search/assets/29255605/95011afa-0871-45a3-8074-d871eebc0a56)
+
 
 ### 配置文件
 
